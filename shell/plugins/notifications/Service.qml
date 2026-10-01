@@ -165,6 +165,11 @@ Item {
     notification.closed.connect(function() {
       if (service.liveRefs[snapshot.originalId] === notification)
         delete service.liveRefs[snapshot.originalId]
+      // A sender can withdraw its own notification after it has been shown.
+      // Mirror a local dismissal so the stale toast does not stay on screen.
+      Qt.callLater(function() {
+        service.removeWithdrawnPopup(snapshot.originalId, snapshot.timestamp)
+      })
     })
 
     // DND bypass rules: chat apps abuse urgency=critical to force
@@ -308,6 +313,19 @@ Item {
       if (isRestoredRow(row)) continue
       if (NotificationLogic.popupFileName(row) !== keepFileName) deletePopupFileFor(row)
       popupModel.remove(i)
+    }
+  }
+
+  // The closed signal also fires after a local dismissal or expiry, where the
+  // row is already gone. Match both id and timestamp so an old close cannot
+  // remove a newer notification that reused the same server id.
+  function removeWithdrawnPopup(originalId, timestamp) {
+    for (var i = popupModel.count - 1; i >= 0; i--) {
+      var row = popupModel.get(i)
+      if (!row || row.originalId !== originalId || row.timestamp !== timestamp) continue
+      archivePopupFileFor(row)
+      popupModel.remove(i)
+      return
     }
   }
 

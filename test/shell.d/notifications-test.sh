@@ -676,6 +676,14 @@ assert(
   'notifications service replaces an on-screen duplicate before showing the new copy'
 )
 assert(
+  /notification\.closed\.connect\(function\(\) \{[\s\S]{0,500}?service\.removeWithdrawnPopup\(snapshot\.originalId, snapshot\.timestamp\)/.test(serviceQml),
+  'notifications service removes a popup when its sender closes the notification'
+)
+assert(
+  /function removeWithdrawnPopup\(originalId, timestamp\)[\s\S]{0,300}?row\.originalId !== originalId \|\| row\.timestamp !== timestamp[\s\S]{0,120}?archivePopupFileFor\(row\)\s*\n\s*popupModel\.remove\(i\)/.test(serviceQml),
+  'notifications service archives only the exact sender-closed popup without resolving a reused live id'
+)
+assert(
   /isDuplicatePopup\(row, snapshot\) \|\| isRestoredRow\(row\)\) continue\n\s*var ref = liveRefs\[row\.originalId\]\n\s*if \(!ref\) continue/.test(serviceQml),
   'notifications service only collapses duplicates of toasts still backed by a live notification'
 )
