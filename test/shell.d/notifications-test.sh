@@ -724,6 +724,10 @@ assert(
   'notifications service archives only the exact sender-closed popup without resolving a reused live id'
 )
 assert(
+  /function removeWithdrawnPopup\(originalId, timestamp\)[\s\S]{0,400}?if \(isRestoredRow\(row\)\) return\n\s*archivePopupFileFor\(row\)/.test(serviceQml),
+  'notifications service keeps a history replay row when the toast it replaced closes'
+)
+assert(
   /isDuplicatePopup\(row, snapshot\) \|\| isRestoredRow\(row\)\) continue\n\s*var ref = liveRefs\[row\.originalId\]\n\s*if \(!ref\) continue/.test(serviceQml),
   'notifications service only collapses duplicates of toasts still backed by a live notification'
 )

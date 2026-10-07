@@ -319,10 +319,13 @@ Item {
   // The closed signal also fires after a local dismissal or expiry, where the
   // row is already gone. Match both id and timestamp so an old close cannot
   // remove a newer notification that reused the same server id.
+  // A history replay dismisses the live toasts and re-shows them as restored
+  // rows under the same identity, so those are left alone.
   function removeWithdrawnPopup(originalId, timestamp) {
     var index = NotificationLogic.popupIndexByIdentity(popupModel, originalId, timestamp)
     if (index < 0) return
     var row = popupModel.get(index)
+    if (isRestoredRow(row)) return
     archivePopupFileFor(row)
     popupModel.remove(index)
   }
